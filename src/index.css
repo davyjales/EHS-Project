@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 25 36% 95%;
+    --foreground: 142 100% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 142 100% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 142 100% 10%;
+    --primary: 142 100% 20%;
+    --primary-foreground: 355.7 100% 97.3%;
+    --secondary: 25 36% 92%;
+    --secondary-foreground: 142 100% 10%;
+    --muted: 25 36% 90%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 142 100% 20%;
+    --accent-foreground: 355.7 100% 97.3%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 142 100% 20%;
+    --input: 142 100% 90%;
+    --ring: 142.1 76.2% 36.3%;
+    --radius: 0.5rem;
+
+    --eco-green-50: hsl(140, 60%, 95%);
+    --eco-green-100: hsl(140, 60%, 90%);
+    --eco-green-200: hsl(140, 60%, 80%);
+    --eco-green-300: hsl(140, 60%, 70%);
+    --eco-green-400: hsl(140, 60%, 60%);
+    --eco-green-500: hsl(140, 60%, 50%);
+    --eco-green-600: hsl(140, 60%, 40%);
+    --eco-green-700: hsl(140, 60%, 30%);
+    --eco-green-800: hsl(140, 60%, 20%);
+    --eco-green-900: hsl(140, 60%, 10%);
+
+    --eco-blue-50: hsl(200, 60%, 95%);
+    --eco-blue-100: hsl(200, 60%, 90%);
+    --eco-blue-200: hsl(200, 60%, 80%);
+    --eco-blue-300: hsl(200, 60%, 70%);
+    --eco-blue-400: hsl(200, 60%, 60%);
+    --eco-blue-500: hsl(200, 60%, 50%);
+    --eco-blue-600: hsl(200, 60%, 40%);
+    --eco-blue-700: hsl(200, 60%, 30%);
+    --eco-blue-800: hsl(200, 60%, 20%);
+    --eco-blue-900: hsl(200, 60%, 10%);
+
+    --eco-yellow-50: hsl(40, 70%, 95%);
+    --eco-yellow-100: hsl(40, 70%, 90%);
+    --eco-yellow-200: hsl(40, 70%, 80%);
+    --eco-yellow-300: hsl(40, 70%, 70%);
+    --eco-yellow-400: hsl(40, 70%, 60%);
+    --eco-yellow-500: hsl(40, 70%, 50%);
+    --eco-yellow-600: hsl(40, 70%, 40%);
+    --eco-yellow-700: hsl(40, 70%, 30%);
+    --eco-yellow-800: hsl(40, 70%, 20%);
+    --eco-yellow-900: hsl(40, 70%, 10%);
+
+    --eco-brown-50: hsl(25, 40%, 95%);
+    --eco-brown-100: hsl(25, 40%, 90%);
+    --eco-brown-200: hsl(25, 40%, 80%);
+    --eco-brown-300: hsl(25, 40%, 70%);
+    --eco-brown-400: hsl(25, 40%, 60%);
+    --eco-brown-500: hsl(25, 40%, 50%);
+    --eco-brown-600: hsl(25, 40%, 40%);
+    --eco-brown-700: hsl(25, 40%, 30%);
+    --eco-brown-800: hsl(25, 40%, 20%);
+    --eco-brown-900: hsl(25, 40%, 10%);
+  }
+ 
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 142.1 76.2% 36.3%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 142.1 76.2% 36.3%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-secondary text-foreground;
+  }
+}
