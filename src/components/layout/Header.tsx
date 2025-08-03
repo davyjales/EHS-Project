@@ -1,8 +1,13 @@
 
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useChat } from "@/contexts/ChatContext";
 import { Button } from "@/components/ui/button";
 import { Package, FileText, UserCircle, LogOut, RecycleIcon, HelpCircle } from "lucide-react";
+import { NotificationButton } from "@/components/chat/NotificationButton";
+import { MiniChat } from "@/components/chat/MiniChat";
+import { useState } from "react";
+import { Chat } from "@/types";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +18,15 @@ import {
 
 export function Header() {
   const { user, logout } = useAuth();
+  const [openChat, setOpenChat] = useState<Chat | null>(null);
+
+  const handleChatSelect = (chat: Chat) => {
+    setOpenChat(chat);
+  };
+
+  const handleCloseChat = () => {
+    setOpenChat(null);
+  };
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-eco-green-800">
@@ -38,6 +52,7 @@ export function Header() {
         
         {user ? (
           <nav className="flex items-center gap-4">
+            <NotificationButton onChatSelect={handleChatSelect} />
             {user.userType === "industry" && (
               <Button asChild variant="outline" size="sm" className="bg-white text-eco-green-800 hover:bg-eco-green-50">
                 <Link to="/waste/new">
@@ -104,6 +119,14 @@ export function Header() {
           </nav>
         )}
       </div>
+      
+      {/* Mini Chat */}
+      {openChat && (
+        <MiniChat 
+          chat={openChat} 
+          onClose={handleCloseChat}
+        />
+      )}
     </header>
   );
 }

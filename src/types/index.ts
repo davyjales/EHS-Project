@@ -82,3 +82,27 @@ export const unitTypeOptions: { value: UnitType; label: string }[] = [
   { value: "unit", label: "Unidades" },
   { value: "m2", label: "Metros quadrados (m²)" },
 ];
+
+export interface ChatMessage {
+  id: string;
+  chatId: string;
+  senderId: string;
+  senderName: string;
+  message: string;
+  timestamp: Date;
+  isRead: boolean;
+}
+
+export interface Chat {
+  id: string;
+  wasteItemId: string;
+  buyerId: string;
+  buyerName: string;
+  sellerId: string;
+  sellerName: string;
+  lastMessage?: string;
+  lastMessageTime?: Date;
+  unreadCount: number;
+  createdAt: Date;
+  updatedAt: Date;
+}

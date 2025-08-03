@@ -2,6 +2,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useWaste } from "@/contexts/WasteContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useChat } from "@/contexts/ChatContext";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { 
@@ -16,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Package, Truck } from "lucide-react";
+import { Calendar, MapPin, Package, Truck, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { jsPDF } from "jspdf";
 import { Contract } from "@/types";
@@ -26,9 +27,11 @@ export default function WasteDetails() {
   const navigate = useNavigate();
   const { getWasteItemById, createContract } = useWaste();
   const { user } = useAuth();
+  const { createChat } = useChat();
   const [quantity, setQuantity] = useState<number>(0);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [contract, setContract] = useState<Contract | null>(null);
+  const [chatCreated, setChatCreated] = useState(false);
   
   const waste = id ? getWasteItemById(id) : undefined;
 
@@ -120,6 +123,20 @@ export default function WasteDetails() {
     doc.save(`contrato-${contract.id}.pdf`);
   };
 
+  const handleCreateChat = async () => {
+    if (!user || !waste) return;
+    
+    try {
+      await createChat(waste.id, waste.ownerId, waste.ownerName);
+      setChatCreated(true);
+      
+      // Remove a mensagem após 3 segundos
+      setTimeout(() => setChatCreated(false), 3000);
+    } catch (error) {
+      console.error("Erro ao criar chat:", error);
+    }
+  };
+
   const getWasteTypeLabel = (type: string): string => {
     const typeMap: Record<string, string> = {
       plastic: 'Plástico',
@@ -201,13 +218,14 @@ export default function WasteDetails() {
               </div>
 
               {user?.userType === "collector" && waste.isAvailable && (
-                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button className="w-full">
-                      <Truck className="h-4 w-4 mr-2" />
-                      Solicitar coleta
-                    </Button>
-                  </DialogTrigger>
+                <>
+                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button className="w-full">
+                        <Truck className="h-4 w-4 mr-2" />
+                        Solicitar coleta
+                      </Button>
+                    </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
                       <DialogTitle>Solicitar coleta de resíduo</DialogTitle>
@@ -249,6 +267,16 @@ export default function WasteDetails() {
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
+                
+                <Button 
+                  variant="outline" 
+                  className="w-full mt-3"
+                  onClick={handleCreateChat}
+                >
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  Conversar com Vendedor
+                </Button>
+                </>
               )}
 
               {user?.userType === "industry" && (
@@ -275,6 +303,13 @@ export default function WasteDetails() {
                 <div className="mt-4 p-3 bg-eco-green-100 text-eco-green-800 rounded-lg text-sm">
                   <p className="font-medium">Contrato gerado com sucesso!</p>
                   <p>O PDF foi baixado automaticamente.</p>
+                </div>
+              )}
+              
+              {chatCreated && (
+                <div className="mt-4 p-3 bg-blue-100 text-blue-800 rounded-lg text-sm">
+                  <p className="font-medium">Chat criado com sucesso!</p>
+                  <p>Agora você pode conversar com o vendedor. Clique no ícone de mensagens no topo da página.</p>
                 </div>
               )}
             </div>
