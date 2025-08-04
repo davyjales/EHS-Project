@@ -40,9 +40,14 @@ export default function Index() {
           {/* Mapa de coletas/resíduos */}
           <section className="mb-12">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-semibold">
-                {user.userType === "industry" ? "Mapa de Coletores" : "Mapa de Resíduos"}
-              </h2>
+              <div>
+                <h2 className="text-2xl font-semibold">
+                  {user.userType === "industry" ? "Mapa de Coletores" : "Mapa de Resíduos"}
+                </h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {userWastes.length} {user.userType === "industry" ? "coletores disponíveis" : "resíduos disponíveis"} em {new Set(userWastes.map(w => w.location)).size} localizações
+                </p>
+              </div>
               <Button variant="outline" size="sm">
                 Filtrar por região
               </Button>

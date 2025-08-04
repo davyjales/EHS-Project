@@ -1,49 +1,180 @@
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
+import { useWaste } from '@/contexts/WasteContext';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { MapPin } from 'lucide-react';
 
 interface MapProps {
   className?: string;
   height?: string;
 }
 
+// Coordenadas aproximadas das principais cidades brasileiras
+const BRAZIL_CITIES: Record<string, [number, number]> = {
+  'São Paulo, SP': [-46.6333, -23.5505],
+  'Rio de Janeiro, RJ': [-43.1729, -22.9068],
+  'Belo Horizonte, MG': [-43.9378, -19.9208],
+  'Salvador, BA': [-38.5014, -12.9714],
+  'Brasília, DF': [-47.8825, -15.7942],
+  'Fortaleza, CE': [-38.5434, -3.7172],
+  'Manaus, AM': [-60.0251, -3.1190],
+  'Curitiba, PR': [-49.2731, -25.4284],
+  'Recife, PE': [-34.8777, -8.0539],
+  'Porto Alegre, RS': [-51.2177, -30.0346],
+  'Campinas, SP': [-47.0608, -22.9056],
+  'Joinville, SC': [-48.8467, -26.3045],
+  'Goiânia, GO': [-49.2643, -16.6869],
+  'Belém, PA': [-48.5044, -1.4558],
+  'Guarulhos, SP': [-46.5333, -23.4625],
+  'São Luís, MA': [-44.3068, -2.5307],
+  'Maceió, AL': [-35.7353, -9.6498],
+  'Campo Grande, MS': [-54.6464, -20.4697],
+  'João Pessoa, PB': [-34.8641, -7.1195],
+  'Teresina, PI': [-42.8034, -5.0892],
+  'Natal, RN': [-35.2094, -5.7945],
+  'Aracaju, SE': [-37.0731, -10.9472],
+  'Cuiabá, MT': [-56.0916, -15.6014],
+  'Vitória, ES': [-40.3376, -20.3155],
+  'Florianópolis, SC': [-48.5482, -27.5969]
+};
+
 export function Map({ className = "", height = "400px" }: MapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
-  
-  useEffect(() => {
-    // Aqui seria a integração com API de mapas como MapBox ou Google Maps
-    // Por enquanto vamos mostrar só um placeholder
+  const map = useRef<mapboxgl.Map | null>(null);
+  const [mapboxToken, setMapboxToken] = useState('');
+  const [showTokenInput, setShowTokenInput] = useState(true);
+  const { wasteItems } = useWaste();
 
-    // Uma implementação futura poderia usar:
-    // import mapboxgl from 'mapbox-gl';
-    // mapboxgl.accessToken = 'SEU_TOKEN_AQUI';
-    // const map = new mapboxgl.Map({
-    //   container: mapContainer.current!,
-    //   style: 'mapbox://styles/mapbox/streets-v11',
-    //   center: [-74.5, 40],
-    //   zoom: 9
-    // });
+  const initializeMap = () => {
+    if (!mapContainer.current || !mapboxToken) return;
+
+    mapboxgl.accessToken = mapboxToken;
     
-    // Aqui podemos adicionar markers para locais de coleta, etc.
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: 'mapbox://styles/mapbox/light-v11',
+      center: [-54.0, -14.0], // Centro do Brasil
+      zoom: 4
+    });
 
-    // Placeholder para o mapa
-    if (mapContainer.current) {
-      const placeholderMap = document.createElement('div');
-      placeholderMap.innerHTML = `
-        <div class="flex flex-col items-center justify-center w-full h-full bg-eco-green-100 rounded-lg">
-          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="text-eco-green-800 mb-4">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-          </svg>
-          <p class="text-eco-green-800 font-medium">Mapa de Coletas</p>
-          <p class="text-eco-green-600 text-sm">Visualize pontos de coleta próximos</p>
+    map.current.addControl(new mapboxgl.NavigationControl());
+
+    map.current.on('load', () => {
+      addWasteMarkers();
+    });
+  };
+
+  const addWasteMarkers = () => {
+    if (!map.current) return;
+
+    // Agrupa os resíduos por localização
+    const locationGroups = wasteItems.reduce((groups, waste) => {
+      if (!groups[waste.location]) {
+        groups[waste.location] = [];
+      }
+      groups[waste.location].push(waste);
+      return groups;
+    }, {} as Record<string, typeof wasteItems>);
+
+    // Adiciona marcadores para cada localização
+    Object.entries(locationGroups).forEach(([location, wastes]) => {
+      const coordinates = BRAZIL_CITIES[location];
+      if (!coordinates) return;
+
+      // Cria elemento customizado para o marcador
+      const el = document.createElement('div');
+      el.className = 'marker';
+      el.style.cssText = `
+        background-color: #22c55e;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border: 2px solid #ffffff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        cursor: pointer;
+      `;
+
+      // Cria popup com informações dos resíduos
+      const popupContent = `
+        <div class="p-2">
+          <h3 class="font-semibold text-sm mb-2">${location}</h3>
+          <p class="text-xs text-gray-600 mb-2">${wastes.length} resíduo${wastes.length > 1 ? 's' : ''} disponível${wastes.length > 1 ? 'eis' : ''}</p>
+          <div class="space-y-1">
+            ${wastes.slice(0, 3).map(waste => `
+              <div class="text-xs">
+                <strong>${waste.title}</strong><br>
+                ${waste.quantity} ${waste.unit} - ${waste.wasteType}
+              </div>
+            `).join('')}
+            ${wastes.length > 3 ? `<div class="text-xs text-gray-500">e mais ${wastes.length - 3}...</div>` : ''}
+          </div>
         </div>
       `;
-      mapContainer.current.appendChild(placeholderMap.firstElementChild!);
-    }
 
+      const popup = new mapboxgl.Popup({ offset: 15 })
+        .setHTML(popupContent);
+
+      new mapboxgl.Marker(el)
+        .setLngLat(coordinates)
+        .setPopup(popup)
+        .addTo(map.current!);
+    });
+  };
+
+  const handleTokenSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (mapboxToken.trim()) {
+      setShowTokenInput(false);
+      setTimeout(initializeMap, 100);
+    }
+  };
+
+  useEffect(() => {
     return () => {
-      // Cleanup da API de mapas quando implementada
+      map.current?.remove();
     };
   }, []);
+
+  if (showTokenInput) {
+    return (
+      <div 
+        className={`border rounded-lg shadow-sm overflow-hidden flex items-center justify-center bg-eco-green-50 ${className}`}
+        style={{ height }}
+      >
+        <div className="text-center p-6 max-w-md">
+          <MapPin className="mx-auto h-12 w-12 text-eco-green-600 mb-4" />
+          <h3 className="text-lg font-semibold mb-2">Configure o Mapa</h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            Para visualizar o mapa, insira seu token público do Mapbox. 
+            Você pode obtê-lo em{' '}
+            <a 
+              href="https://mapbox.com/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-eco-green-600 hover:underline"
+            >
+              mapbox.com
+            </a>
+          </p>
+          <form onSubmit={handleTokenSubmit} className="space-y-3">
+            <Input
+              type="text"
+              placeholder="pk.eyJ1IjoiY..."
+              value={mapboxToken}
+              onChange={(e) => setMapboxToken(e.target.value)}
+              className="text-sm"
+            />
+            <Button type="submit" className="w-full" disabled={!mapboxToken.trim()}>
+              Carregar Mapa
+            </Button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div 
