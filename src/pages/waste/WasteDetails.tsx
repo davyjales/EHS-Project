@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, MapPin, Package, Truck, MessageCircle } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { jsPDF } from "jspdf";
 import { Contract } from "@/types";
 
@@ -34,6 +34,15 @@ export default function WasteDetails() {
   const [chatCreated, setChatCreated] = useState(false);
   
   const waste = id ? getWasteItemById(id) : undefined;
+
+  // Debug - adicionar logs no useEffect
+  useEffect(() => {
+    console.log("User:", user);
+    console.log("User type:", user?.userType);
+    console.log("Waste available:", waste?.isAvailable);
+    console.log("User ID:", user?.id);
+    console.log("Waste owner ID:", waste?.ownerId);
+  }, [user, waste]);
 
   if (!waste) {
     return (
@@ -217,15 +226,15 @@ export default function WasteDetails() {
                 </p>
               </div>
 
+              {/* Botão de solicitar coleta - apenas para coletores */}
               {user?.userType === "collector" && waste.isAvailable && (
-                <>
-                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button className="w-full">
-                        <Truck className="h-4 w-4 mr-2" />
-                        Solicitar coleta
-                      </Button>
-                    </DialogTrigger>
+                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="w-full">
+                      <Truck className="h-4 w-4 mr-2" />
+                      Solicitar coleta
+                    </Button>
+                  </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
                       <DialogTitle>Solicitar coleta de resíduo</DialogTitle>
@@ -267,23 +276,26 @@ export default function WasteDetails() {
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
-                
+              )}
+
+              {/* Botão de chat - para todos os usuários logados, exceto o próprio vendedor */}
+              {user && user.id !== waste.ownerId && (
                 <Button 
                   variant="outline" 
-                  className="w-full mt-3"
+                  className={`w-full ${user?.userType === "collector" && waste.isAvailable ? "mt-3" : ""}`}
                   onClick={handleCreateChat}
                 >
                   <MessageCircle className="h-4 w-4 mr-2" />
                   Conversar com Vendedor
                 </Button>
-                </>
               )}
 
-              {user?.userType === "industry" && (
+              {/* Mensagem para indústrias */}
+              {user?.userType === "industry" && user.id === waste.ownerId && (
                 <div className="text-center py-4">
                   <Package className="h-8 w-8 mx-auto text-muted-foreground" />
                   <p className="mt-2 text-sm text-muted-foreground">
-                    Como indústria, você não pode coletar resíduos.
+                    Este é o seu próprio resíduo.
                   </p>
                 </div>
               )}
