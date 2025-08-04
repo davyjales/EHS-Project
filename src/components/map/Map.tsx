@@ -120,8 +120,8 @@ export function Map({ className = "", height = "400px" }: MapProps) {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         
-        {markers.map((marker, index) => (
-          marker && (
+        {markers.map((marker, index) => 
+          marker ? (
             <Marker
               key={`${marker.location}-${index}`}
               position={marker.coordinates}
@@ -149,8 +149,8 @@ export function Map({ className = "", height = "400px" }: MapProps) {
                 </div>
               </Popup>
             </Marker>
-          )
-        ))}
+          ) : null
+        )}
       </MapContainer>
     </div>
   );
