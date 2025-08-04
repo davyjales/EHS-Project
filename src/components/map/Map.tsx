@@ -1,6 +1,6 @@
-import { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import { Icon, LatLngExpression } from 'leaflet';
+import { LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useWaste } from '@/contexts/WasteContext';
 
@@ -38,70 +38,33 @@ const BRAZIL_CITIES: Record<string, LatLngExpression> = {
   'Florianópolis, SC': [-27.5969, -48.5482]
 };
 
-// Create a custom icon for the markers
-const createCustomIcon = () => {
-  return new Icon({
-    iconUrl: 'data:image/svg+xml;base64,' + btoa(`
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="12" cy="12" r="8" fill="#22c55e" stroke="#ffffff" stroke-width="2"/>
-      </svg>
-    `),
-    iconSize: [24, 24],
-    iconAnchor: [12, 12],
-    popupAnchor: [0, -12],
-  });
-};
-
 export function Map({ className = "", height = "400px" }: MapProps) {
   const { wasteItems } = useWaste();
   
-  // Group waste items by location
-  const locationGroups = useMemo(() => {
-    return wasteItems.reduce((groups, waste) => {
+  // Group waste items by location and create markers data
+  const markers = useMemo(() => {
+    const locationGroups = wasteItems.reduce((groups, waste) => {
       if (!groups[waste.location]) {
         groups[waste.location] = [];
       }
       groups[waste.location].push(waste);
       return groups;
     }, {} as Record<string, typeof wasteItems>);
-  }, [wasteItems]);
 
-  // Create markers data
-  const markers = useMemo(() => {
     return Object.entries(locationGroups)
       .map(([location, wastes]) => {
         const coordinates = BRAZIL_CITIES[location];
         if (!coordinates) return null;
         
         return {
+          id: location,
           location,
           coordinates,
           wastes
         };
       })
-      .filter(Boolean);
-  }, [locationGroups]);
-
-  // Fix for default marker icons in production
-  useEffect(() => {
-    delete (Icon.Default.prototype as any)._getIconUrl;
-    Icon.Default.mergeOptions({
-      iconRetinaUrl: 'data:image/svg+xml;base64,' + btoa(`
-        <svg width="25" height="41" viewBox="0 0 25 41" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12.5 0C5.596 0 0 5.596 0 12.5C0 19.404 12.5 41 12.5 41S25 19.404 25 12.5C25 5.596 19.404 0 12.5 0ZM12.5 17C10.015 17 8 14.985 8 12.5S10.015 8 12.5 8S17 10.015 17 12.5S14.985 17 12.5 17Z" fill="#22c55e"/>
-        </svg>
-      `),
-      iconUrl: 'data:image/svg+xml;base64,' + btoa(`
-        <svg width="25" height="41" viewBox="0 0 25 41" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12.5 0C5.596 0 0 5.596 0 12.5C0 19.404 12.5 41 12.5 41S25 19.404 25 12.5C25 5.596 19.404 0 12.5 0ZM12.5 17C10.015 17 8 14.985 8 12.5S10.015 8 12.5 8S17 10.015 17 12.5S14.985 17 12.5 17Z" fill="#22c55e"/>
-        </svg>
-      `),
-      shadowUrl: '',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-    });
-  }, []);
+      .filter((marker): marker is NonNullable<typeof marker> => marker !== null);
+  }, [wasteItems]);
 
   return (
     <div 
@@ -109,7 +72,7 @@ export function Map({ className = "", height = "400px" }: MapProps) {
       style={{ height }}
     >
       <MapContainer
-        center={[-14.0, -54.0]} // Centro do Brasil
+        center={[-14.0, -54.0]}
         zoom={4}
         style={{ height: '100%', width: '100%' }}
         zoomControl={true}
@@ -120,37 +83,34 @@ export function Map({ className = "", height = "400px" }: MapProps) {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         
-        {markers.map((marker, index) => 
-          marker ? (
-            <Marker
-              key={`${marker.location}-${index}`}
-              position={marker.coordinates}
-              icon={createCustomIcon()}
-            >
-              <Popup>
-                <div className="p-2 min-w-[200px]">
-                  <h3 className="font-semibold text-sm mb-2">{marker.location}</h3>
-                  <p className="text-xs text-gray-600 mb-2">
-                    {marker.wastes.length} resíduo{marker.wastes.length > 1 ? 's' : ''} disponível{marker.wastes.length > 1 ? 'eis' : ''}
-                  </p>
-                  <div className="space-y-1">
-                    {marker.wastes.slice(0, 3).map((waste, wasteIndex) => (
-                      <div key={waste.id} className="text-xs">
-                        <strong>{waste.title}</strong><br />
-                        {waste.quantity} {waste.unit} - {waste.wasteType}
-                      </div>
-                    ))}
-                    {marker.wastes.length > 3 && (
-                      <div className="text-xs text-gray-500">
-                        e mais {marker.wastes.length - 3}...
-                      </div>
-                    )}
-                  </div>
+        {markers.map((marker) => (
+          <Marker
+            key={marker.id}
+            position={marker.coordinates}
+          >
+            <Popup>
+              <div className="p-2 min-w-[200px]">
+                <h3 className="font-semibold text-sm mb-2">{marker.location}</h3>
+                <p className="text-xs text-gray-600 mb-2">
+                  {marker.wastes.length} resíduo{marker.wastes.length > 1 ? 's' : ''} disponível{marker.wastes.length > 1 ? 'eis' : ''}
+                </p>
+                <div className="space-y-1">
+                  {marker.wastes.slice(0, 3).map((waste) => (
+                    <div key={waste.id} className="text-xs">
+                      <strong>{waste.title}</strong><br />
+                      {waste.quantity} {waste.unit} - {waste.wasteType}
+                    </div>
+                  ))}
+                  {marker.wastes.length > 3 && (
+                    <div className="text-xs text-gray-500">
+                      e mais {marker.wastes.length - 3}...
+                    </div>
+                  )}
                 </div>
-              </Popup>
-            </Marker>
-          ) : null
-        )}
+              </div>
+            </Popup>
+          </Marker>
+        ))}
       </MapContainer>
     </div>
   );
