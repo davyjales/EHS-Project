@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import { WasteItem } from "@/types";
 import { InnovationSection } from "@/components/feed/InnovationSection";
 import { Map } from "@/components/map/Map";
+import { MapErrorBoundary } from "@/components/map/MapErrorBoundary";
 
 export default function Index() {
   const { user } = useAuth();
@@ -52,7 +53,9 @@ export default function Index() {
                 Filtrar por região
               </Button>
             </div>
-            <Map height="300px" className="w-full" />
+            <MapErrorBoundary>
+              <Map height="300px" className="w-full" />
+            </MapErrorBoundary>
           </section>
 
           {/* Feed principal */}
