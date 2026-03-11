@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Painel EHS • EHS Project</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="/">
+          <span class="brand-badge" aria-hidden="true"></span>
+          <span>EHS Project</span>
+        </a>
+        <nav class="nav">
+          <button id="themeToggle" class="btn btn-ghost" type="button">☀</button>
+          <a class="btn btn-ghost" href="/admin">Cadastros admin</a>
+          <a class="btn btn-ghost" href="/login">Login</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="card">
+        <div class="card-header">
+          <div class="kicker">Painel EHS • Vendas de recicláveis</div>
+          <div class="dashboard-header">
+            <div class="dashboard-title-row">
+              <h1 class="title" id="dashboardTitle">Visão geral mensal</h1>
+              <div class="dashboard-filters">
+                <span>Período:</span>
+                <select id="filterMonth" aria-label="Mês de referência"></select>
+                <select id="filterYear" aria-label="Ano de referência"></select>
+              </div>
+            </div>
+            <p class="subtitle">
+              As colunas representam os clientes compradores e o valor em reais vendido para cada um no mês selecionado. Página pública, sem necessidade de login.
+            </p>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="kpi-grid">
+            <div class="kpi">
+              <div class="kpi-label">Receita total do mês</div>
+              <div class="kpi-value" id="kpiTotalRevenue">R$ 0,00</div>
+              <div class="kpi-extra" id="kpiTotalRevenueExtra"></div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">Clientes com vendas</div>
+              <div class="kpi-value" id="kpiClientsWithSales">0</div>
+              <div class="kpi-extra">clientes atendidos no período</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">Clientes cadastrados</div>
+              <div class="kpi-value" id="kpiTotalClients">0</div>
+              <div class="kpi-extra">base total de compradores</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">Materiais recicláveis</div>
+              <div class="kpi-value" id="kpiTotalMaterials">0</div>
+              <div class="kpi-extra">itens atualmente cadastrados</div>
+            </div>
+          </div>
+
+          <div class="chart-wrapper" style="margin-top:18px">
+            <div class="chart-toolbar">
+              <span class="pill" id="chartPeriodLabel">Mês atual</span>
+              <div style="display:flex;gap:6px;align-items:center">
+                <span class="chart-legend">Valor vendido por cliente (R$)</span>
+                <button id="btnExportExcel" class="btn btn-ghost" type="button">Exportar para Excel</button>
+              </div>
+            </div>
+            <div style="height:260px">
+              <canvas id="clientsChart" aria-label="Gráfico de vendas por cliente" role="img"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-wrapper" style="margin-top:18px">
+            <div class="chart-toolbar">
+              <span class="pill" id="yearChartLabel">Ano atual</span>
+              <div style="display:flex;gap:6px;align-items:center">
+                <span class="chart-legend">Total vendido por mês (R$)</span>
+              </div>
+            </div>
+            <div style="height:260px">
+              <canvas id="yearChart" aria-label="Gráfico de vendas por mês" role="img"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" style="margin-top:18px">
+        <div class="card-header">
+          <div class="kicker">Detalhamento por cliente</div>
+          <h2 class="title" style="font-size:22px">Clientes por faturamento</h2>
+          <p class="subtitle">
+            Tabela com o ranking de clientes compradores e o valor total vendido no mês. Útil para acompanhar principais destinos dos recicláveis.
+          </p>
+        </div>
+        <div class="card-body">
+          <div id="tableContainer">
+            <table class="table" aria-label="Tabela de clientes e faturamento mensal">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Cliente</th>
+                  <th>Valor vendido (R$)</th>
+                </tr>
+              </thead>
+              <tbody id="clientsTableBody">
+                <tr>
+                  <td colspan="3" style="text-align:center;color:var(--muted)">Carregando dados…</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="/js/common.js"></script>
+    <script src="/js/dashboard.js"></script>
+  </body>
+</html>

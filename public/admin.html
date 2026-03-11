@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cadastros • EHS Project</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="/">
+          <span class="brand-badge" aria-hidden="true"></span>
+          <span>EHS Project</span>
+        </a>
+        <nav class="nav">
+          <button id="themeToggle" class="btn btn-ghost" type="button">☀</button>
+          <a class="btn btn-ghost" href="/">Dashboard</a>
+          <a class="btn btn-ghost" href="/login">Login</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="admin-header">
+        <h1 class="title">Painel Admin</h1>
+        <p class="subtitle">Cadastro de resíduos, fornecedores e lançamento de recolhimentos.</p>
+      </div>
+
+      <div class="tabs" role="tablist">
+        <button type="button" class="tab-btn active" data-tab="residuos" role="tab" aria-selected="true">Resíduos</button>
+        <button type="button" class="tab-btn" data-tab="fornecedores" role="tab" aria-selected="false">Fornecedores</button>
+        <button type="button" class="tab-btn" data-tab="recolhimentos" role="tab" aria-selected="false">Recolhimentos</button>
+      </div>
+
+      <!-- Aba Resíduos -->
+      <section id="tab-residuos" class="tab-panel active" role="tabpanel">
+        <div class="card">
+          <div class="card-header">
+            <div class="kicker">Cadastro</div>
+            <h2 class="title" style="font-size:24px">Resíduos</h2>
+            <p class="subtitle">Cadastre os tipos de resíduos (materiais recicláveis). Depois associe aos fornecedores e aos recolhimentos.</p>
+          </div>
+          <div class="card-body">
+            <form id="formResiduo" class="form">
+              <input type="hidden" name="id" value="" />
+              <label>
+                Nome do resíduo
+                <input name="name" type="text" required minlength="2" placeholder="Ex: Papelão prensado" />
+              </label>
+              <label>
+                Unidade
+                <input name="unit" type="text" placeholder="Ex: kg, tonelada" value="kg" />
+              </label>
+              <label>
+                Valor base (R$)
+                <input name="base_price" type="number" step="0.01" min="0" placeholder="Opcional" />
+              </label>
+              <div class="form-actions">
+                <button class="btn btn-primary" type="submit" id="btnSaveResiduo">Salvar resíduo</button>
+                <button class="btn btn-ghost" type="button" id="btnCancelResiduo" style="display:none">Cancelar</button>
+              </div>
+              <div id="residuoMsg" style="display:none;margin-top:8px"></div>
+            </form>
+
+            <div style="margin-top:24px">
+              <div class="kicker" style="margin-bottom:8px">Resíduos cadastrados</div>
+              <div class="chart-wrapper">
+                <table class="table" aria-label="Resíduos cadastrados">
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>Unidade</th>
+                      <th>Valor base (R$)</th>
+                      <th style="width:120px">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="residuosListBody">
+                    <tr><td colspan="4" style="text-align:center;color:var(--muted)">Carregando…</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Aba Fornecedores -->
+      <section id="tab-fornecedores" class="tab-panel" role="tabpanel" hidden>
+        <div class="card">
+          <div class="card-header">
+            <div class="kicker">Cadastro</div>
+            <h2 class="title" style="font-size:24px">Fornecedores</h2>
+            <p class="subtitle">Cadastre os fornecedores que recolhem resíduos. Defina quais tipos de resíduo cada um recolhe (pode ser mais de um).</p>
+          </div>
+          <div class="card-body">
+            <form id="formFornecedor" class="form">
+              <input type="hidden" name="id" value="" />
+              <label>
+                Nome do fornecedor
+                <input name="name" type="text" required minlength="2" placeholder="Ex: Coleta Verde Ltda." />
+              </label>
+              <label>
+                Documento (CNPJ/ID)
+                <input name="document" type="text" placeholder="Opcional" />
+              </label>
+              <label>
+                Tipos de resíduo que este fornecedor recolhe
+                <select name="material_ids" multiple class="select-multi" id="fornecedorMaterialIds" size="5">
+                  <option value="">Carregando resíduos…</option>
+                </select>
+                <span class="hint">Segure Ctrl (ou Cmd) para selecionar vários.</span>
+              </label>
+              <div class="form-actions">
+                <button class="btn btn-primary" type="submit" id="btnSaveFornecedor">Salvar fornecedor</button>
+                <button class="btn btn-ghost" type="button" id="btnCancelFornecedor" style="display:none">Cancelar</button>
+              </div>
+              <div id="fornecedorMsg" style="display:none;margin-top:8px"></div>
+            </form>
+
+            <div style="margin-top:24px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between">
+              <div class="kicker" style="margin-bottom:0">Fornecedores cadastrados</div>
+              <div class="export-actions">
+                <label class="export-label">
+                  Relatório Excel:
+                  <select id="exportSupplierFilter">
+                    <option value="">Todos os fornecedores</option>
+                  </select>
+                </label>
+                <button type="button" class="btn btn-primary" id="btnExportColetas">Gerar relatório Excel</button>
+              </div>
+            </div>
+            <div class="chart-wrapper" style="margin-top:8px">
+              <table class="table" aria-label="Fornecedores cadastrados">
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Documento</th>
+                    <th>Resíduos recolhidos</th>
+                    <th style="width:120px">Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="fornecedoresListBody">
+                  <tr><td colspan="4" style="text-align:center;color:var(--muted)">Carregando…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Aba Recolhimentos -->
+      <section id="tab-recolhimentos" class="tab-panel" role="tabpanel" hidden>
+        <div class="card">
+          <div class="card-header">
+            <div class="kicker">Lançamento</div>
+            <h2 class="title" style="font-size:24px">Lançamento de recolhimentos</h2>
+            <p class="subtitle">Registre quando um fornecedor realizou a coleta e informe a quantidade de cada resíduo recolhido.</p>
+          </div>
+          <div class="card-body">
+            <form id="formRecolhimento" class="form">
+              <label>
+                Fornecedor
+                <select name="supplier_id" id="recolhimentoSupplierId" required>
+                  <option value="">Selecione o fornecedor</option>
+                </select>
+              </label>
+              <label>
+                Data da coleta
+                <input name="collection_date" type="date" required id="recolhimentoDate" />
+              </label>
+              <div id="recolhimentoQuantidades" class="quantidades-wrapper" style="display:none">
+                <div class="kicker" style="margin-bottom:8px">Quantidades por resíduo (apenas os que este fornecedor recolhe)</div>
+                <div id="recolhimentoInputs"></div>
+              </div>
+              <button class="btn btn-primary" type="submit" id="btnSaveRecolhimento">Registrar recolhimento</button>
+              <div id="recolhimentoMsg" style="display:none;margin-top:8px"></div>
+            </form>
+
+            <div style="margin-top:24px">
+              <div class="kicker" style="margin-bottom:8px">Últimos recolhimentos</div>
+              <div class="chart-wrapper">
+                <table class="table" aria-label="Recolhimentos">
+                  <thead>
+                    <tr>
+                      <th>Data</th>
+                      <th>Fornecedor</th>
+                      <th>Resíduos / Quantidades</th>
+                    </tr>
+                  </thead>
+                  <tbody id="recolhimentosListBody">
+                    <tr><td colspan="3" style="text-align:center;color:var(--muted)">Carregando…</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="/js/common.js"></script>
+    <script src="/js/admin.js"></script>
+  </body>
+</html>

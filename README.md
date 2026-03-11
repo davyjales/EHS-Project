@@ -1,73 +1,61 @@
-# Welcome to your Lovable project
+# EHS Project (Node.js + XAMPP + HTML/CSS/JS)
 
-## Project info
+Este projeto foi ajustado para rodar local com:
 
-**URL**: https://lovable.dev/projects/694b1b89-740c-461e-98c3-f363ff77b916
+- **Backend**: Node.js + Express
+- **Banco**: MySQL do **XAMPP**
+- **Frontend**: **HTML/CSS/JavaScript** (arquivos estáticos em `public/`)
 
-## How can I edit this code?
+## Rodando local (Windows + XAMPP)
 
-There are several ways of editing your application.
+### 1) Suba o MySQL no XAMPP
 
-**Use Lovable**
+- Abra o **XAMPP Control Panel**
+- Inicie o serviço **MySQL**
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/694b1b89-740c-461e-98c3-f363ff77b916) and start prompting.
+### 2) Crie o banco
 
-Changes made via Lovable will be committed automatically to this repo.
+No phpMyAdmin (ou no client MySQL), crie o banco:
 
-**Use your preferred IDE**
+- **Nome sugerido**: `recycling_sa`
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+O servidor cria automaticamente a tabela `users` ao iniciar.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### 3) Configure as variáveis de ambiente
 
-Follow these steps:
+Crie um arquivo `.env` na raiz copiando o exemplo:
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- copie `.env.example` para `.env`
+- ajuste `DB_USER`, `DB_PASSWORD` e `DB_NAME` se necessário
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### 4) Instale e rode
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Acesse:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- `http://localhost:3000/` (home)
+- `http://localhost:3000/signup` (cadastro)
+- `http://localhost:3000/login` (login)
 
-**Use GitHub Codespaces**
+### API
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- `GET /api/health`
+- `POST /api/auth/signup`
+- `POST /api/auth/login`
 
-## What technologies are used for this project?
+## Estrutura
 
-This project is built with:
+- `server.js`: servidor Express + rotas de API
+- `config/database.js`: config do MySQL (XAMPP)
+- `public/`: HTML/CSS/JS servidos pelo Express
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Observação
 
-## How can I deploy this project?
+A pasta `src/` (React/Vite) ainda existe no repositório, mas **não é usada** neste modo estático. Se você quiser, eu também posso:
 
-Simply open [Lovable](https://lovable.dev/projects/694b1b89-740c-461e-98c3-f363ff77b916) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- remover a parte React/Vite com segurança, ou
+- manter as duas opções (React para produção e `public/` para protótipo), com scripts separados.
