@@ -17,7 +17,7 @@ Este projeto foi ajustado para rodar local com:
 
 No phpMyAdmin (ou no client MySQL), crie o banco:
 
-- **Nome sugerido**: `recycling_sa`
+- **Nome sugerido**: `ehs_project`
 
 O servidor cria automaticamente a tabela `users` ao iniciar.
 
@@ -52,10 +52,3 @@ Acesse:
 - `server.js`: servidor Express + rotas de API
 - `config/database.js`: config do MySQL (XAMPP)
 - `public/`: HTML/CSS/JS servidos pelo Express
-
-## Observação
-
-A pasta `src/` (React/Vite) ainda existe no repositório, mas **não é usada** neste modo estático. Se você quiser, eu também posso:
-
-- remover a parte React/Vite com segurança, ou
-- manter as duas opções (React para produção e `public/` para protótipo), com scripts separados.
